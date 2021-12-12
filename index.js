@@ -1,4 +1,5 @@
 const usersListContainer = document.querySelector(".contacts-list");
+const userstListWrapper = document.querySelector(".list-view");
 const userDetailsContainer = document.querySelector(".details-view");
 const friendsListContainer = document.querySelector(".friends-list");
 const userDetailsHeader = userDetailsContainer.querySelector(
@@ -19,8 +20,9 @@ const initialState = () => {
 const appendListElement = (friends) => {
   friends.forEach((friend) => {
     const listElement = document.createElement("li");
-    listElement.innerHTML = '<i class="fa fa-male"></i><span></span>';
-    listElement.querySelector("span").textContent = peopleNamesMap.get(friend);
+    listElement.innerHTML = `<i class="fa fa-male"></i><span>${peopleNamesMap.get(
+      friend
+    )}</span>`;
     friendsListContainer.appendChild(listElement);
   });
 };
@@ -32,15 +34,20 @@ const getSectionHeaderElement = (title) => {
   return sectionHeader;
 };
 
-const renderUserFriends = (friends) => {
-  userDetailsContainer.style.zIndex = "10";
+const changeListView = () => {
+  userDetailsContainer.classList.toggle("hidden");
+  userstListWrapper.classList.toggle("hidden");
+};
+
+const renderUserFriends = (friends, userId) => {
+  changeListView();
 
   friendsListContainer.appendChild(getSectionHeaderElement("Друзья"));
   appendListElement(friends);
 
   friendsListContainer.appendChild(getSectionHeaderElement("Не в друзьях"));
   const notFriends = people
-    .filter((person) => !friends.includes(person.id))
+    .filter((person) => !friends.includes(person.id) && !(person.id === userId))
     .map((person) => person.id)
     .slice(0, showPeopleCount);
   appendListElement(notFriends);
@@ -52,7 +59,7 @@ const renderUserFriends = (friends) => {
 const onUserClick = (event) => {
   const userRow = event.target.closest("li");
   userDetailsHeader.textContent = userRow.userName;
-  renderUserFriends(userRow.friends);
+  renderUserFriends(userRow.friends, userRow.userId);
 };
 
 const getPopularPeople = (list) => {
@@ -81,10 +88,10 @@ const renderUsersList = (list) => {
   people = list;
   list.forEach((person) => {
     var listElement = document.createElement("li");
-    listElement.innerHTML = "<strong></strong>";
-    listElement.querySelector("strong").textContent = person.name;
+    listElement.innerHTML = `<strong>${person.name}</strong>`;
     listElement.friends = person.friends;
     listElement.userName = person.name;
+    listElement.userId = person.id;
     usersListContainer.appendChild(listElement);
   });
   usersListContainer.addEventListener("click", onUserClick);
@@ -92,7 +99,7 @@ const renderUsersList = (list) => {
 };
 
 const onBackClick = () => {
-  userDetailsContainer.style.zIndex = "0";
+  changeListView();
   friendsListContainer.innerHTML = "";
 };
 
